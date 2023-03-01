@@ -32,7 +32,6 @@ public class LoginManager
         await PreparateLoginPlayFab();
 
         Debug.Log("初期化完了");
-
     }
 
     public static async UniTask PreparateLoginPlayFab()
@@ -137,7 +136,6 @@ public class LoginManager
     /// <returns></returns>
     private static async UniTask<LoginResult> LoadUserAsync(string userId)
     {
-
         Debug.Log("ユーザーデータあり。ログイン開始");
 
         // ログインリクエストの作成
@@ -157,12 +155,11 @@ public class LoginManager
 
             // TODO response.Error にはエラーの種類が値として入っている
             // そのエラーに対応した処理を switch 文などで記述して複数のエラーに対応できるようにする
-
-
         }
 
         // エラーの内容を見てハンドリングを行い、ログインに成功しているかを判定
-        var message = response.Error is null ? $"Login success! My PlayFabID is {response.Result.PlayFabId}"
+        var message = response.Error is null
+            ? $"Login success! My PlayFabID is {response.Result.PlayFabId}"
             : response.Error.GenerateErrorReport();
 
         Debug.Log(message);
