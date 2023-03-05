@@ -24,21 +24,21 @@ public class LoginManager
     /// 初期化処理
     /// </summary>
     /// <returns></returns>
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static async UniTaskVoid InitializeAsync()
-    {
-        Debug.Log("初期化開始");
+    //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]　//ゲーム開始時に自動的に１回のみ呼び出される。
+    //private static async UniTaskVoid InitializeAsync()
+    //{
+    //    Debug.Log("初期化開始");
 
-        await PreparateLoginPlayFab();
+    //    await PreparateLoginPlayFab();
 
-        Debug.Log("初期化完了");
-    }
+    //    Debug.Log("初期化完了");
+    //}
 
-    public static async UniTask PreparateLoginPlayFab()
-    {
-        Debug.Log("ログイン準備開始");
+    //public static async UniTask PreparateLoginPlayFab()
+    //{
+    //    Debug.Log("ログイン準備開始");
 
-        await LoginAndUpdateLocalCacheAsync();　　　　
+    //    await LoginAndUpdateLocalCacheAsync();
 
         ////仮のログイン情報(リクエスト)を作成して設定
         //var request = new LoginWithCustomIDRequest
@@ -56,31 +56,28 @@ public class LoginManager
         //    : result.Error.GenerateErrorReport();　//Errorがnullでなければエラーが発生しているのでレポート作成
 
         //Debug.Log(message);
-    }
+    //}
 
     /// <summary>
     /// ユーザーデータとタイトルデータを初期化
     /// </summary>
     /// <returns></returns>
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]　//ゲーム開始時に自動的に１回のみ呼び出される。
     public static async UniTask LoginAndUpdateLocalCacheAsync()
     {
         Debug.Log("初期化開始");
-
-        //「UserId」の値を「PlayerPrefsManager」ヘルパークラスから取得
-        var userId = PlayerPrefsManager.UserId;
-
 
         // ユーザーID が取得できない場合には新規作成して匿名ログインする
         // 取得できた場合には、ユーザーID を使ってログインする(次回の手順で実装するので TODO にしておく)
         // var の型は LoginResult 型(PlayFab SDK で用意されているクラス)
 
         //渡された文字列がnullまたは空文字列(文字数が0)の場合はtrue,それ以外の場合はfalseを返す。
-        var loginResult = string.IsNullOrEmpty(userId)
+        var loginResult = string.IsNullOrEmpty(PlayerPrefsManager.UserId)
 
             //IsNullOrEmpty(userId) が true の場合、新規ユーザーを作成し、匿名ログインを実行
             ? await CreateNewUserAsync()
             // falseの場合
-            : await LoadUserAsync(userId);
+            : await LoadUserAsync(PlayerPrefsManager.UserId);
 
         // TODO データを自動で取得する設定にしているので、取得したデータをローカルにキャッシュする
     }
@@ -142,7 +139,7 @@ public class LoginManager
         var request = new LoginWithCustomIDRequest
         {
             CustomId = userId,
-            CreateAccount = false　　　//　<=　アカウントの上書き処理は行わないようにする
+            CreateAccount = false　　//　<=　アカウントの上書き処理は行わないようにする
         };
 
         // PlayFab にログイン
