@@ -7,8 +7,27 @@ using System.Threading.Tasks;
 using System;
 using Cysharp.Threading.Tasks;
 
-public class LoginManager
+public static class LoginManager
 {
+    /// <summary>
+    /// ログインと同時に PlayFab から取得する情報の設定用クラスである GetPlayerCombinedInfoRequestParams のプロパティ。
+    /// GetPlayerCombinedInfoRequestParams クラスで設定した値が InfoRequestParameters の設定値になり、true にしてある項目で各情報が自動的に取得できるようになる
+    /// 各パラメータの初期値はすべて false
+    /// 取得が多くなるほどログイン時間がかかり、メモリを消費するので気を付ける
+    /// 取得結果は InfoResultPayLoad に入っている。false のものはすべて null になる
+    /// </summary>
+    public static GetPlayerCombinedInfoRequestParams CombinedInfoRequestParams { get; }
+        = new GetPlayerCombinedInfoRequestParams
+        {
+            GetUserAccountInfo = true,
+            GetPlayerProfile = true,
+            GetTitleData = true,
+            GetUserData = true,
+            GetUserInventory = true,
+            GetUserVirtualCurrency = true,
+            GetPlayerStatistics = true
+        };
+
     /// <summary>
     /// コンストラクタ
     /// </summary>
@@ -101,6 +120,8 @@ public class LoginManager
             {
                 CustomId = newUserId, //  <=  ここが前の処理と異なる
                 CreateAccount = true,
+
+                InfoRequestParameters = CombinedInfoRequestParams　　　// プロパティの情報を設定
             };
 
             //PlayFabにログイン
@@ -139,7 +160,9 @@ public class LoginManager
         var request = new LoginWithCustomIDRequest
         {
             CustomId = userId,
-            CreateAccount = false　　//　<=　アカウントの上書き処理は行わないようにする
+            CreateAccount = false,　　//　<=　アカウントの上書き処理は行わないようにする
+
+            InfoRequestParameters = CombinedInfoRequestParams　　　// プロパティの情報を設定
         };
 
         // PlayFab にログイン
@@ -162,5 +185,56 @@ public class LoginManager
         Debug.Log(message);
 
         return response.Result;
+    }
+
+    /// <summary>
+    /// Email とパスワードでログイン(アカウント回復用)
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    /// <returns></returns>
+    public static async UniTask<(bool, string)> LoginEmailAndPasswordAsync(string email, string password)
+    {
+
+        // Email によるログインリクエストの作成
+        var request = new LoginWithEmailAddressRequest
+        {
+            Email = email,
+            Password = password,
+            InfoRequestParameters = CombinedInfoRequestParams
+        };
+
+        // PlayFab にログイン
+        var response = await PlayFabClientAPI.LoginWithEmailAddressAsync(request);
+
+        // エラーハンドリング
+        if (response.Error != null)
+        {
+            switch (response.Error.Error)
+            {
+                case PlayFabErrorCode.InvalidParams:
+                case PlayFabErrorCode.InvalidEmailOrPassword:
+                case PlayFabErrorCode.AccountNotFound:
+                    Debug.Log("メールアドレスかパスワードが正しくありません");
+                    break;
+                default:
+                    Debug.Log(response.Error.GenerateErrorReport());
+                    break;
+            }
+
+            return (false, "メールアドレスかパスワードが正しくありません");
+        }
+
+        // PlayerPrefas を初期化して、ログイン結果の UserId を登録し直す
+        PlayerPrefs.DeleteAll();
+
+        // 新しく PlayFab から UserId を取得
+        // InfoResultPayload はクライアントプロフィールオプション(InfoRequestParameters)で許可されてないと null になる
+        PlayerPrefsManager.UserId = response.Result.InfoResultPayload.AccountInfo.CustomIdInfo.CustomId;
+
+        // Email でログインしたことを記録する
+        PlayerPrefsManager.IsLoginEmailAdress = true;
+
+        return (true, "Email によるログインが完了しました。");
     }
 }

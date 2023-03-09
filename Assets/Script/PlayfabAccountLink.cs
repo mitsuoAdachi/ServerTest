@@ -15,10 +15,14 @@ public static class PlayFabAccountLink
     {
         var request = new AddUsernamePasswordRequest
         {
+           
             Username = PlayerPrefsManager.UserId,
             Email = email,
             Password = password
         };
+
+        Debug.Log("Email" + request.Email);
+        Debug.Log($"Email {request.Email}");
 
         // PlayFab にリクエストを送信して、アカウントの連携を判定してもらう
         // 処理がおわるまで次の処理にはいかず、判定結果が取得できたら response に情報が入るので、それから次の処理へ行く
