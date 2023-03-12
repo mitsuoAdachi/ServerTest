@@ -40,44 +40,6 @@ public static class LoginManager
     }
 
     /// <summary>
-    /// 初期化処理
-    /// </summary>
-    /// <returns></returns>
-    //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]　//ゲーム開始時に自動的に１回のみ呼び出される。
-    //private static async UniTaskVoid InitializeAsync()
-    //{
-    //    Debug.Log("初期化開始");
-
-    //    await PreparateLoginPlayFab();
-
-    //    Debug.Log("初期化完了");
-    //}
-
-    //public static async UniTask PreparateLoginPlayFab()
-    //{
-    //    Debug.Log("ログイン準備開始");
-
-    //    await LoginAndUpdateLocalCacheAsync();
-
-        ////仮のログイン情報(リクエスト)を作成して設定
-        //var request = new LoginWithCustomIDRequest
-        //{
-        //    CustomId = "GettingStartedGuide",　//この部分がユーザーIDになります
-        //    CreateAccount = true　//アカウントが作成されない場合、trueの場合は匿名ログインとしてアカウントを作成する
-        //};
-
-        ////PlayFabへのログイン。情報が確認できるまで待機
-        //var result = await PlayFabClientAPI.LoginWithCustomIDAsync(request);
-
-        ////エラー内容を見て、ログインに成功しているか判定(エラーハンドリング)
-        //var message = result.Error is null
-        //    ? $"ログイン成功！ My PlayFab is{result.Result.PlayFabId}" //Errorがnullならば{エラーなし}なのでログイン成功
-        //    : result.Error.GenerateErrorReport();　//Errorがnullでなければエラーが発生しているのでレポート作成
-
-        //Debug.Log(message);
-    //}
-
-    /// <summary>
     /// ユーザーデータとタイトルデータを初期化
     /// </summary>
     /// <returns></returns>
@@ -98,7 +60,11 @@ public static class LoginManager
             // falseの場合
             : await LoadUserAsync(PlayerPrefsManager.UserId);
 
-        // TODO データを自動で取得する設定にしているので、取得したデータをローカルにキャッシュする
+        // TODO プレイヤーデータの作成と更新
+
+
+        // PlayFab のデータを自動で取得する設定にしているので、取得したデータをローカルにキャッシュする
+        UpdateLocalCacheAsync(loginResult);    //  <=  後程、async メソッドになったら await を追加します。
     }
 
     /// <summary>
@@ -236,5 +202,32 @@ public static class LoginManager
         PlayerPrefsManager.IsLoginEmailAdress = true;
 
         return (true, "Email によるログインが完了しました。");
+    }
+
+    /// <summary>
+    /// PlayFab から取得したデータ群をローカル(端末)にキャッシュ
+    /// </summary>
+    /// <param name="loginResult"></param>
+    /// <returns></returns>
+    public static void UpdateLocalCacheAsync(LoginResult loginResult)
+    {    //  <=　後程、async を追加し、戻り値を UniTask に変更します。
+
+        // TODO カタログ類の初期化。他のインスタンスの初期化にも必要なので最初に行う
+
+
+        // TODO タイトルデータの取得
+
+
+        // TODO ユーザーデータの取得
+
+
+        // ユーザー名などの取得
+        PlayerPlofileManager.SyncPlayFabToClient(loginResult.InfoResultPayload.PlayerProfile, loginResult.InfoResultPayload.PlayerStatistics);
+
+
+        // TODO 他の初期化処理を追加
+
+
+        Debug.Log("各種データのキャッシュ完了");
     }
 }
