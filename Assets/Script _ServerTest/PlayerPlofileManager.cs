@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using PlayFab;
 using PlayFab.ClientModels;
+using UnityEngine;
 
 public static class PlayerPlofileManager
 {
@@ -13,7 +14,6 @@ public static class PlayerPlofileManager
     public static string PlayFabId => Profile.PlayerId;　　　　   // PlayerProfileModel クラス内に用意されている PlayerId 変数を利用する
 
     public static string UserDisplayName => Profile.DisplayName;　// PlayerProfileModel クラス内に用意されている DisplayName 変数を利用する
-
 
     /// <summary>
     /// ユーザー名の更新

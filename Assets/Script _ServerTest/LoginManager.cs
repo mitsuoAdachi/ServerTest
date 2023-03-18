@@ -60,8 +60,8 @@ public static class LoginManager
             // falseの場合
             : await LoadUserAsync(PlayerPrefsManager.UserId);
 
-        // TODO プレイヤーデータの作成と更新
-
+            //プレイヤーデータの作成と更新
+              await CreateUserDataAsync();
 
         // PlayFab のデータを自動で取得する設定にしているので、取得したデータをローカルにキャッシュする
         UpdateLocalCacheAsync(loginResult);    //  <=  後程、async メソッドになったら await を追加します。
@@ -230,4 +230,19 @@ public static class LoginManager
 
         Debug.Log("各種データのキャッシュ完了");
     }
+
+    /// <summary>
+    /// プレイヤーデータの作成と更新。デバッグ用
+    /// </summary>
+    private static async UniTask CreateUserDataAsync()
+    {
+        var createData = new Dictionary<string, string> {
+            { "HP", "100"}
+        };
+
+        await UserDataManager.UpdatePlayerDataAsync(createData);
+
+        Debug.Log("ユーザーデータ 登録完了");
+    }
+
 }
