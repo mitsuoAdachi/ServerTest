@@ -236,13 +236,18 @@ public static class LoginManager
     /// </summary>
     private static async UniTask CreateUserDataAsync()
     {
-        var createData = new Dictionary<string, string> {
-            { "HP", "100"}
-        };
+        //var createData = new Dictionary<string, string> {
+        //    { "Level", "0"}
+        //};
 
-        await UserDataManager.UpdatePlayerDataAsync(createData);
+        //await UserDataManager.UpdatePlayerDataAsync(createData);　　//　ここまでコメントアウトします
+
+
+        UserDataManager.User = User.Create();      //  新しく User 作成します
+        string key = "User";　　　　　　　　　　　 //　保存用の Key を作成します
+
+        await UserDataManager.UpdateUserDataByJsonAsync(key);　　　// PlayFab に Json 形式にした User クラスの情報を登録します
 
         Debug.Log("ユーザーデータ 登録完了");
     }
-
 }

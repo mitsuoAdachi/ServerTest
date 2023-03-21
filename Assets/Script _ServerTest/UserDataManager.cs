@@ -4,9 +4,15 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using PlayFab;
 using PlayFab.ClientModels;
+using System.Threading.Tasks;
+using System;
+using Newtonsoft.Json;
+
 
 public static class UserDataManager
 {
+    public static User User { get; set; }
+
     // TODO Level などの情報を持たせる
 
     /// <summary>
@@ -16,7 +22,6 @@ public static class UserDataManager
     /// <param name="userDataPermission"></param>
     public static async UniTask UpdatePlayerDataAsync(Dictionary<string, string> updateUserData, UserDataPermission userDataPermission = UserDataPermission.Private)
     {
-
         var request = new UpdateUserDataRequest
         {
             Data = updateUserData,
@@ -29,7 +34,6 @@ public static class UserDataManager
 
         if (response.Error != null)
         {
-
             Debug.Log("エラー");
             return;
         }
@@ -43,10 +47,9 @@ public static class UserDataManager
     /// <param name="deleteKey">削除する Key の名前</param>
     public static async void DeletePlayerDataAsync(string deleteKey)
     {
-
         var request = new UpdateUserDataRequest
         {
-            //KeysToRemoveがList型のため
+            //KeysToRemoveがList型のためListで作成
             KeysToRemove = new List<string> { deleteKey }
         };
 
@@ -54,11 +57,40 @@ public static class UserDataManager
 
         if (response.Error != null)
         {
-
             Debug.Log("エラー");
             return;
         }
 
         Debug.Log("プレイヤーデータ　削除");
+    }
+
+    /// <summary>
+    /// プレイヤーデータの作成と更新(プレイヤーデータ(タイトル)の Key に複数の値情報をまとめた Json を利用する場合)
+    /// </summary>
+    /// <param name="userName">key</param>
+    /// <param name="userDataPermission"></param>
+    /// <returns></returns>
+    public static async UniTask<(bool isSuccess, string errorMessage)> UpdateUserDataByJsonAsync(string userName, UserDataPermission userDataPermission = UserDataPermission.Private)
+    {
+        string userJson = JsonConvert.SerializeObject(User);　　　//　<=　この機能が Json.NET ライブラリの処理です。
+
+        var request = new UpdateUserDataRequest
+        {
+            Data = new Dictionary<string, string> {
+                { userName, userJson }
+            },
+
+            // アクセス許可の変更
+            Permission = userDataPermission
+        };
+
+        var response = await PlayFabClientAPI.UpdateUserDataAsync(request);
+
+        if (response.Error != null)
+        {
+            Debug.Log("エラー");
+        }
+
+        return (true, string.Empty);
     }
 }
