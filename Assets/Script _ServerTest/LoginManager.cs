@@ -61,7 +61,7 @@ public static class LoginManager
             : await LoadUserAsync(PlayerPrefsManager.UserId);
 
             //プレイヤーデータの作成と更新
-              await CreateUserDataAsync();
+              //await CreateUserDataAsync();
 
         // PlayFab のデータを自動で取得する設定にしているので、取得したデータをローカルにキャッシュする
         UpdateLocalCacheAsync(loginResult);    //  <=  後程、async メソッドになったら await を追加します。
@@ -218,7 +218,8 @@ public static class LoginManager
         // TODO タイトルデータの取得
 
 
-        // TODO ユーザーデータの取得
+        // ユーザーデータの取得
+        UserDataManager.SyncPlayFabToClient(loginResult.InfoResultPayload.UserData);
 
 
         // ユーザー名などの取得

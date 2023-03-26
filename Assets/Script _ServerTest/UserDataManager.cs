@@ -93,4 +93,20 @@ public static class UserDataManager
 
         return (true, string.Empty);
     }
+
+    /// <summary>
+    /// PlayFab の最新データを取得してローカルにキャッシュ
+    /// </summary>
+    /// <param name="userData"></param>
+    public static void SyncPlayFabToClient(Dictionary<string, UserDataRecord> userData)
+    {
+        // ユーザーの情報を取得。取得できた場合には複合化、取得できない場合には新規ユーザーの作成
+        User = userData.TryGetValue("User", out var user)
+            ? JsonConvert.DeserializeObject<User>(user.Value) : User.Create();
+
+        Debug.Log("PlayFab のユーザーデータを取得");
+
+        // TODO 他にも処理があれば追加
+    }
+
 }
